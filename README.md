@@ -1,7 +1,7 @@
 # Hablame SMS Notifications Channel for Laravel
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/sideso/sms-hablame-notification-channel.svg?style=flat-square)](https://packagist.org/packages/sideso/sms-hablame-notification-channel)
-[![Total Downloads](https://img.shields.io/packagist/dt/sideso/sms-hablame-notification-channel.svg?style=flat-square)](https://packagist.org/packages/sideso/sms-hablame-notification-channel)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/sideso/hablame.svg?style=flat-square)](https://packagist.org/packages/sideso/hablame)
+[![Total Downloads](https://img.shields.io/packagist/dt/sideso/hablame.svg?style=flat-square)](https://packagist.org/packages/sideso/hablame)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 
 This package makes it easy to send notifications using [Hablame](https://www.hablame.co) with Laravel 6.x, 7.x, 8.x and 9.x
@@ -31,10 +31,14 @@ composer require sideso/hablame
 
 ### Setting up the hablame service
 
-Add your hablame token, api key and account number to your config/services.php:
+You may publish the config file and add your hablame token, api key and account number to your config/hablame.php:
+
+```bash
+php artisan vendor:publish --provider="Sideso\Hablame\HablameServiceProvider" --tag="config"
+```
 
 ```php
-// config/services.php
+// config/hablame.php
 ...
 'hablame' => [
 	'account' => env('HABLAME_ACCOUNT',''),

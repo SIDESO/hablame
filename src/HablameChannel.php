@@ -3,8 +3,9 @@
 namespace Sideso\Hablame;
 
 use Carbon\Carbon;
+use Sideso\SMS\Message;
+use Sideso\Hablame\Hablame;
 use Illuminate\Notifications\Notification;
-use Sideso\Hablame\HablameMessage;
 use Sideso\Hablame\Exceptions\CouldNotSendNotification;
 
 
@@ -48,10 +49,16 @@ class HablameChannel
             return;
         }
 
-        $message = $notification->toHablame($notifiable);
+        if(method_exists($notification, 'toHablame')){
+            $message = $notification->toHablame($notifiable);
+        }elseif(method_exists($notification, 'toSMS')){
+            $message = $notification->toSMS($notifiable);
+        }else{
+            throw CouldNotSendNotification::invalidMessageObject($notification);
+        }
 
         if (is_string($message)) {
-            $message = new HablameMessage($message);
+            $message = new Message($message);
         }
 
         if (mb_strlen($message->content) > $this->character_limit_count) {

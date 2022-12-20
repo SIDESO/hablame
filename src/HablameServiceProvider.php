@@ -2,12 +2,14 @@
 
 namespace Sideso\Hablame;
 
-use GuzzleHttp\Client as HttpClient;
-use Illuminate\Notifications\ChannelManager;
-use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\ServiceProvider;
+
 use Sideso\Hablame\Hablame;
 use Sideso\Hablame\HablameChannel;
+use GuzzleHttp\Client as HttpClient;
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Notifications\ChannelManager;
+use Illuminate\Support\Facades\Notification;
+
 
 class HablameServiceProvider extends ServiceProvider
 {
@@ -16,7 +18,11 @@ class HablameServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__.'/../config/config.php' => config_path('hablame.php'),
+            ], 'config');
+        }
     }
 
     /**
@@ -24,13 +30,15 @@ class HablameServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'hablame');
+
         $this->app->singleton(Hablame::class, static function ($app) {
             return new Hablame(
-                account: $app['config']['services.hablame.account'],
-                apiKey: $app['config']['services.hablame.api_key'],
-                token: $app['config']['services.hablame.token'],
+                account: $app['config']['hablame.account'],
+                apiKey: $app['config']['hablame.api_key'],
+                token: $app['config']['hablame.token'],
                 httpClient: new HttpClient(),
-                sourceCode: $app['config']['services.hablame.source_code']
+                sourceCode: $app['config']['hablame.source_code']
             );
         });
 
@@ -39,5 +47,7 @@ class HablameServiceProvider extends ServiceProvider
                 return new HablameChannel($app[Hablame::class]);
             });
         });
+
+        
     }
 }
