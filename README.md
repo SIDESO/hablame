@@ -15,6 +15,7 @@ This package makes it easy to send notifications using [Hablame](https://www.hab
 	- [Usage](#usage)
 		- [On-Demand Notifications](#on-demand-notifications)
 		- [Available Message methods](#available-message-methods)
+		- [Available Events](#available-events)
 	- [Changelog](#changelog)
 	- [Testing](#testing)
 	- [Security](#security)
@@ -99,6 +100,14 @@ Notification::route('hablame', '573001234567')
 `flash()`: Set the if the message should be flash. (True = Flash, False = Normal).
 
 `senDate()`: Set the date and time when the message should be sent. (Not used is priority is set to true).
+
+`withCallback()`: Set the callback function to be executed when the message is sent.
+
+`tags()`: Set the tags to be used to send the message.
+
+### Available Events
+
+`Sideso\SMS\SMSSent`: This event is fired when the message is sent.
 
 ## Changelog
 

@@ -2,12 +2,11 @@
 
 namespace Sideso\Hablame;
 
-use Carbon\Carbon;
 use Sideso\SMS\Message;
 use Sideso\Hablame\Hablame;
+use Sideso\SMS\Events\SmsSent;
 use Illuminate\Notifications\Notification;
 use Sideso\Hablame\Exceptions\CouldNotSendNotification;
-
 
 class HablameChannel
 {
@@ -28,7 +27,7 @@ class HablameChannel
     {
         $this->hablame = $hablame;
     }
-    
+
     /**
      * Send the given notification.
      *
@@ -39,21 +38,11 @@ class HablameChannel
      */
     public function send($notifiable, Notification $notification)
     {
-        $to = $notifiable->routeNotificationFor('hablame', $notification);
-
-        if(!$to){
-            $to = $notifiable->routeNotificationFor('sms', $notification);
-        }
-
-        if (!$to) {
-            return;
-        }
-
-        if(method_exists($notification, 'toHablame')){
+        if (method_exists($notification, 'toHablame')) {
             $message = $notification->toHablame($notifiable);
-        }elseif(method_exists($notification, 'toSMS')){
+        } elseif (method_exists($notification, 'toSMS')) {
             $message = $notification->toSMS($notifiable);
-        }else{
+        } else {
             throw CouldNotSendNotification::invalidMessageObject($notification);
         }
 
@@ -61,18 +50,47 @@ class HablameChannel
             $message = new Message($message);
         }
 
+        if (! $message instanceof Message) {
+            throw CouldNotSendNotification::invalidMessageObject($message);
+        }
+
         if (mb_strlen($message->content) > $this->character_limit_count) {
             throw CouldNotSendNotification::contentLengthLimitExceeded($this->character_limit_count);
         }
 
-        return $this->hablame->sendMessage(
-            toNumber: $to,
+        $message->to = $notifiable->routeNotificationFor('hablame', $notification);
+
+        if (! $message->to) {
+            $message->to = $notifiable->routeNotificationFor('sms', $notification);
+        }
+
+        if (! $message->to) {
+            return;
+        }
+
+        $message->provider('hablame');
+
+        $response = $this->hablame->sendMessage(
+            toNumber: $message->to,
             message: trim($message->content),
             priority: $message->priority,
-            flash: $message->flash, 
-            sc: $message->source_code, 
-            request_dlvr_rcpt: $message->request_dlvr_rcpt, 
+            flash: $message->flash,
+            sc: $message->source_code,
+            request_dlvr_rcpt: $message->request_dlvr_rcpt,
             sendDate: $message->send_date
         );
+
+        if ($response['status'] == '1x000') {
+            $message->sent = true;
+            $message->provider_msg_id = $response['smsId'];
+        }
+
+        SmsSent::dispatch($message);
+
+        if ($message->callback && is_callable($message->callback)) {
+            call_user_func($message->callback, $notifiable, $notification, $message);
+        }
+
+        return $response;
     }
 }

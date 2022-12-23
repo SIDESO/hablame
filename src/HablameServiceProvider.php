@@ -2,14 +2,12 @@
 
 namespace Sideso\Hablame;
 
-
-use Sideso\Hablame\Hablame;
-use Sideso\Hablame\HablameChannel;
 use GuzzleHttp\Client as HttpClient;
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Notifications\ChannelManager;
 use Illuminate\Support\Facades\Notification;
-
+use Illuminate\Support\ServiceProvider;
+use Sideso\Hablame\Hablame;
+use Sideso\Hablame\HablameChannel;
 
 class HablameServiceProvider extends ServiceProvider
 {
@@ -47,7 +45,5 @@ class HablameServiceProvider extends ServiceProvider
                 return new HablameChannel($app[Hablame::class]);
             });
         });
-
-        
     }
 }

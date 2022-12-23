@@ -2,14 +2,13 @@
 
 namespace Sideso\Hablame;
 
-
 use Exception;
-use Illuminate\Support\Arr;
-use GuzzleHttp\RequestOptions;
-use Illuminate\Support\Carbon;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\RequestOptions;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Sideso\Hablame\Exceptions\CouldNotSendNotification;
 
 class Hablame
@@ -55,7 +54,7 @@ class Hablame
      */
     public function __construct(
         string $account = null,
-        string $apiKey = null, 
+        string $apiKey = null,
         string $token = null,
         HttpClient $httpClient,
         string $sourceCode = '')
@@ -106,12 +105,12 @@ class Hablame
      * @param  array  $params
      */
     public function sendMessage(
-        string $toNumber, 
-        string $message, 
-        bool $priority = false, 
-        bool $flash = false, 
-        string $sc = '', 
-        bool $request_dlvr_rcpt = false, 
+        string $toNumber,
+        string $message,
+        bool $priority = false,
+        bool $flash = false,
+        string $sc = '',
+        bool $request_dlvr_rcpt = false,
         ?Carbon $sendDate = null)
     {
         $this->priority = $priority;
@@ -119,18 +118,17 @@ class Hablame
         $params = [
             'toNumber' => $toNumber,
             'sms' => $message,
-            'flash' => $flash ? "1" : "0",
-            'sc' => $sc != ''  ? $sc : $this->source_code,
-            'request_dlvr_rcpt' => $request_dlvr_rcpt ? "1" : "0",
+            'flash' => $flash ? '1' : '0',
+            'sc' => $sc != '' ? $sc : $this->source_code,
+            'request_dlvr_rcpt' => $request_dlvr_rcpt ? '1' : '0',
         ];
 
-        if($sendDate && $priority) {
+        if ($sendDate && $priority) {
             $params['sendDate'] = $sendDate->timestamp;
         }
 
         return $this->sendRequest($params);
     }
-    
 
     private function getEndpoint(): string
     {

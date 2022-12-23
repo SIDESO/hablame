@@ -10,18 +10,17 @@ class CouldNotSendNotification extends \Exception
 {
     public static function accountNotProvided()
     {
-        return new static("Account not provided.");
+        return new static('Account not provided.');
     }
-
 
     public static function apiKeyNotProvided()
     {
-        return new static ("API Key not provided.");
+        return new static ('API Key not provided.');
     }
 
     public static function tokenNotProvided()
     {
-        return new static ("Token not provided.");
+        return new static ('Token not provided.');
     }
 
     /**
@@ -61,6 +60,7 @@ class CouldNotSendNotification extends \Exception
     public static function couldNotCommunicateWithHablame(GuzzleException $exception): self
     {
         dd($exception->getResponse()->getBody()->getContents());
+
         return new static("The communication with Hablame failed. Reason: {$exception->getMessage()}", $exception->getCode(), $exception);
     }
 }

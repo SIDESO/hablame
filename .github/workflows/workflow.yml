@@ -1,0 +1,17 @@
+name: Actions Flow
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  php-cs-fixer:
+    uses: SIDESO/.github/.github/workflows/php-cs-fixer-laravel-packages.yml@master
+  laravel-tests:
+    needs: php-cs-fixer
+    uses: ./.github/workflows/tests.yml
+    secrets: inherit
