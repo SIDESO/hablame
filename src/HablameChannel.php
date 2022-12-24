@@ -2,11 +2,11 @@
 
 namespace Sideso\Hablame;
 
-use Sideso\SMS\Message;
-use Sideso\Hablame\Hablame;
-use Sideso\SMS\Events\SmsSent;
 use Illuminate\Notifications\Notification;
 use Sideso\Hablame\Exceptions\CouldNotSendNotification;
+use Sideso\Hablame\Hablame;
+use Sideso\SMS\Events\SmsSent;
+use Sideso\SMS\Message;
 
 class HablameChannel
 {
