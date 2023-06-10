@@ -5,6 +5,7 @@ namespace Sideso\Hablame\Exceptions;
 use Exception;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 
 class CouldNotSendNotification extends \Exception
 {
@@ -59,8 +60,11 @@ class CouldNotSendNotification extends \Exception
      */
     public static function couldNotCommunicateWithHablame(GuzzleException $exception): self
     {
-        dd($exception->getResponse()->getBody()->getContents());
-
         return new static("The communication with Hablame failed. Reason: {$exception->getMessage()}", $exception->getCode(), $exception);
+    }
+
+    public static function couldNotGetLock(LockTimeoutException $exception): self
+    {
+        return new static("Could not get the lock to send the SMS. Reason: {$exception->getMessage()}", $exception->getCode(), $exception);
     }
 }

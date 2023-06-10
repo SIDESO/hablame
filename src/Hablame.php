@@ -3,12 +3,15 @@
 namespace Sideso\Hablame;
 
 use Exception;
+use Illuminate\Cache\Lock;
+use Illuminate\Support\Arr;
+use GuzzleHttp\RequestOptions;
+use Illuminate\Support\Carbon;
 use GuzzleHttp\Client as HttpClient;
+use Illuminate\Support\Facades\Cache;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\RequestOptions;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Carbon;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Sideso\Hablame\Exceptions\CouldNotSendNotification;
 
 class Hablame
@@ -45,6 +48,11 @@ class Hablame
      * @var null|string Hablame Source Code.
      */
     protected $source_code;
+
+    /**
+     * @var bool Hablame Priority.
+     */
+    protected bool $priority = false;
 
     /**
      * @param  string  $apiKey
@@ -147,7 +155,15 @@ class Hablame
             throw CouldNotSendNotification::tokenNotProvided();
         }
 
+        /**
+         * El Api de Hablame sólo soporta hasta 5 peticiones por segundo.
+         * De manera conservadora implementamos una espera de 250 milisegundos desués de recibir la respuesta y tendremos un atomic lock que prevenga simultaneidad.
+         */
+        $start = microtime(true);
+        $lock = Cache::lock('foo', 30); //Prepara un lock que durará 30 segundos o menos si se libera manualmente.
         try {
+            $lock->block(10); //Intenta obtener el lock. Si transcurridos 10 segundos el lock aún no está disponible, lanza una excepción.
+
             $response = $this->client->request('POST', $this->getEndpoint(), [
                 'headers' => [
                     'Account' => $this->account,
@@ -157,11 +173,17 @@ class Hablame
                 RequestOptions::JSON => $params,
             ]);
 
+            usleep(250000);
+
             return json_decode((string) $response->getBody(), true);
         } catch (ClientException $e) {
             throw CouldNotSendNotification::serviceRespondedWithAnError($e);
         } catch (GuzzleException $e) {
             throw CouldNotSendNotification::couldNotCommunicateWithHablame($e);
+        } catch (LockTimeoutException $e) {
+            throw CouldNotSendNotification::couldNotGetLock($e);
+        } finally {
+            $lock?->release();
         }
     }
 }
