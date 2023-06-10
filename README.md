@@ -103,6 +103,14 @@ Notification::route('hablame', '573001234567')
 
 `withCallback()`: Set the callback function to be executed when the message is sent.
 
+```php
+callBackFunction($notifiable, \Illuminate\Notifications\Notification $notification, \Sideso\SMS\Message $message){
+	//Do something
+}
+
+$message->withCallback('callBackFunction');
+```
+
 `tags()`: Set the tags to be used to send the message.
 
 ### Available Events
