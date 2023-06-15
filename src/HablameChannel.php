@@ -3,6 +3,7 @@
 namespace Sideso\Hablame;
 
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
 use Sideso\Hablame\Exceptions\CouldNotSendNotification;
 use Sideso\Hablame\Hablame;
 use Sideso\SMS\Events\SmsSent;
@@ -83,7 +84,10 @@ class HablameChannel
         if ($response['status'] == '1x000') {
             $message->sent = true;
             $message->provider_msg_id = $response['smsId'];
+        }else{
+            Log::error('Hablame SMS Error: '.$response['status'], [$message,$response]);
         }
+        
 
         SmsSent::dispatch($message);
 
