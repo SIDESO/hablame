@@ -84,10 +84,9 @@ class HablameChannel
         if ($response['status'] == '1x000') {
             $message->sent = true;
             $message->provider_msg_id = $response['smsId'];
-        }else{
-            Log::error('Hablame SMS Error: '.$response['status'], [$message,$response]);
+        } else {
+            Log::error('Hablame SMS Error: '.$response['status'], [$message, $response]);
         }
-        
 
         SmsSent::dispatch($message);
 
