@@ -157,7 +157,9 @@ class Hablame
 
         /**
          * El Api de Hablame sólo soporta hasta 5 peticiones por segundo.
-         * De manera conservadora implementamos una espera de 250 milisegundos desués de recibir la respuesta y tendremos un atomic lock que prevenga simultaneidad.
+         * De manera conservadora implementamos una espera de 500 milisegundos desués de recibir la respuesta y tendremos un atomic lock que prevenga simultaneidad.
+         * 
+         * El tiempo de espera puede ser configurado en el archivo .env con la variable WAIT_TIME_SMS.
          */
         $start = microtime(true);
         $lock = Cache::lock('foo', 30); //Prepara un lock que durará 30 segundos o menos si se libera manualmente.
@@ -173,7 +175,7 @@ class Hablame
                 RequestOptions::JSON => $params,
             ]);
 
-            usleep(250000);
+            usleep(env('WAIT_TIME_SMS',500) *1000);
 
             return json_decode((string) $response->getBody(), true);
         } catch (ClientException $e) {
