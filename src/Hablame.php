@@ -142,10 +142,9 @@ class Hablame
         array $bulk,
         string $sc = '',
         bool $request_dlvr_rcpt = false,
-        bool $flash = false, 
-        string $sendDate = null, 
-        )
-    {
+        bool $flash = false,
+        string $sendDate = null,
+        ) {
         $this->priority = false;
 
         $params = [
@@ -159,7 +158,7 @@ class Hablame
             $params['sendDate'] = $sendDate;
         }
 
-        return $this->sendRequest($params, "https://api103.hablame.co/api/sms/v3/send/marketing/bulk");
+        return $this->sendRequest($params, 'https://api103.hablame.co/api/sms/v3/send/marketing/bulk');
     }
 
     private function getEndpoint(): string

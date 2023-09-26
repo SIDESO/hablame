@@ -2,13 +2,13 @@
 
 namespace Sideso\Hablame;
 
-use Sideso\SMS\Message;
-use Sideso\Hablame\Hablame;
-use Sideso\SMS\Events\SmsSent;
+use Illuminate\Notifications\Notification;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Notifications\Notification;
 use Sideso\Hablame\Exceptions\CouldNotSendNotification;
+use Sideso\Hablame\Hablame;
+use Sideso\SMS\Events\SmsSent;
+use Sideso\SMS\Message;
 
 class HablameChannel
 {
@@ -85,13 +85,12 @@ class HablameChannel
 
     public function bulkSend($bulk)
     {
-        
         $response = $this->hablame->sendBulkMessage(
             bulk: $bulk,
         );
-        
+
         if ($response['status'] == '1x000') {
-            foreach($bulk as $item){
+            foreach ($bulk as $item) {
                 $message = new Message($item['sms']);
                 $message->to = $item['numero'];
                 $message->sent = true;
@@ -99,16 +98,15 @@ class HablameChannel
                 $message->provider('hablame');
                 SmsSent::dispatch($message);
             }
-            
         } else {
             Log::error('Hablame SMS Error: '.$response['status'], [$response, $bulk]);
         }
 
         return $response;
     }
-        
-    
-    public function sendMessage( Message $message){
+
+    public function sendMessage(Message $message)
+    {
         if (! $message->to) {
             return;
         }
