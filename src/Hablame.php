@@ -138,12 +138,36 @@ class Hablame
         return $this->sendRequest($params);
     }
 
+    public function sendBulkMessage(
+        array $bulk,
+        string $sc = '',
+        bool $request_dlvr_rcpt = false,
+        bool $flash = false, 
+        string $sendDate = null, 
+        )
+    {
+        $this->priority = false;
+
+        $params = [
+            'flash' => $flash ? '1' : '0',
+            'sc' => $sc != '' ? $sc : $this->source_code,
+            'request_dlvr_rcpt' => $request_dlvr_rcpt ? '1' : '0',
+            'bulk' => $bulk,
+        ];
+
+        if ($sendDate) {
+            $params['sendDate'] = $sendDate;
+        }
+
+        return $this->sendRequest($params, "https://api103.hablame.co/api/sms/v3/send/marketing/bulk");
+    }
+
     private function getEndpoint(): string
     {
         return $this->priority ? $this->apiUrl['priority'] : $this->apiUrl['marketing'];
     }
 
-    private function sendRequest(array $params)
+    private function sendRequest(array $params, string $enpoint = null)
     {
         if (empty($this->account)) {
             throw CouldNotSendNotification::accountNotProvided();
@@ -166,7 +190,7 @@ class Hablame
         try {
             $lock->block(10); //Intenta obtener el lock. Si transcurridos 10 segundos el lock aún no está disponible, lanza una excepción.
 
-            $response = $this->client->request('POST', $this->getEndpoint(), [
+            $response = $this->client->request('POST', $enpoint ?? $this->getEndpoint(), [
                 'headers' => [
                     'Account' => $this->account,
                     'ApiKey' => $this->apiKey,

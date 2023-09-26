@@ -8,19 +8,19 @@ This package makes it easy to send notifications using [Hablame](https://www.hab
 
 ## Contents
 
-- [Hablame SMS Notifications Channel for Laravel](#hablame-sms-notifications-channel-for-laravel)
-	- [Contents](#contents)
-	- [Installation](#installation)
-		- [Setting up the hablame service](#setting-up-the-hablame-service)
-	- [Usage](#usage)
-		- [On-Demand Notifications](#on-demand-notifications)
-		- [Available Message methods](#available-message-methods)
-		- [Available Events](#available-events)
-	- [Changelog](#changelog)
-	- [Testing](#testing)
-	- [Security](#security)
-	- [Credits](#credits)
-	- [License](#license)
+- [Contents](#contents)
+- [Installation](#installation)
+	- [Setting up the hablame service](#setting-up-the-hablame-service)
+- [Usage](#usage)
+	- [On-Demand Notifications](#on-demand-notifications)
+	- [Bulk Messages](#bulk-messages)
+	- [Available Message methods](#available-message-methods)
+	- [Available Events](#available-events)
+- [Changelog](#changelog)
+- [Testing](#testing)
+- [Security](#security)
+- [Credits](#credits)
+- [License](#license)
 
 
 ## Installation
@@ -87,6 +87,30 @@ Sometimes you may need to send a notification to someone who is not stored as a 
 Notification::route('hablame', '573001234567')                      
             ->notify(new InvoicePaid($invoice));
 ```
+
+### Bulk Messages
+If you excpet to send bulk messages, you can use the following method to send a message to multiple recipients.
+
+```php
+use Sideso\Hablame\HablameChannel;
+use Sideso\Hablame\Hablame;
+
+$bulk = [
+	[
+		'numero' => '3000000001',
+		'sms' => 'Hello World!',
+	],
+	[
+		'numero' => '3000000002',
+		'sms' => 'Hello World! (again)',
+	],
+;
+
+$sms = new HablameChannel(app(Hablame::class));
+$sms->bulkSend($bulk);
+
+```
+
 ### Available Message methods
 
 `content()`: Set a content of the notification message. This parameter should be no longer than 918 char(6 message parts).

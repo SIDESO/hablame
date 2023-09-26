@@ -2,12 +2,13 @@
 
 namespace Sideso\Hablame;
 
-use Illuminate\Notifications\Notification;
-use Illuminate\Support\Facades\Log;
-use Sideso\Hablame\Exceptions\CouldNotSendNotification;
+use Sideso\SMS\Message;
 use Sideso\Hablame\Hablame;
 use Sideso\SMS\Events\SmsSent;
-use Sideso\SMS\Message;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Notifications\Notification;
+use Sideso\Hablame\Exceptions\CouldNotSendNotification;
 
 class HablameChannel
 {
@@ -65,6 +66,49 @@ class HablameChannel
             $message->to = $notifiable->routeNotificationFor('sms', $notification);
         }
 
+        $sent = $this->sendMessage($message);
+
+        if ($message->callback && is_callable($message->callback)) {
+            call_user_func($message->callback, $notifiable, $notification, $message);
+        }
+
+        return $sent;
+    }
+
+    public function sendTextToNumber(string $text, string $number)
+    {
+        $message = new Message($text);
+        $message->to = $number;
+
+        return $this->sendMessage($message);
+    }
+
+    public function bulkSend($bulk)
+    {
+        
+        $response = $this->hablame->sendBulkMessage(
+            bulk: $bulk,
+        );
+        
+        if ($response['status'] == '1x000') {
+            foreach($bulk as $item){
+                $message = new Message($item['sms']);
+                $message->to = $item['numero'];
+                $message->sent = true;
+                $message->provider_msg_id = $response['loteId'];
+                $message->provider('hablame');
+                SmsSent::dispatch($message);
+            }
+            
+        } else {
+            Log::error('Hablame SMS Error: '.$response['status'], [$response, $bulk]);
+        }
+
+        return $response;
+    }
+        
+    
+    public function sendMessage( Message $message){
         if (! $message->to) {
             return;
         }
@@ -89,10 +133,6 @@ class HablameChannel
         }
 
         SmsSent::dispatch($message);
-
-        if ($message->callback && is_callable($message->callback)) {
-            call_user_func($message->callback, $notifiable, $notification, $message);
-        }
 
         return $response;
     }
