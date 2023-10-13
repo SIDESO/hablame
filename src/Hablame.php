@@ -3,19 +3,18 @@
 namespace Sideso\Hablame;
 
 use Exception;
-use Illuminate\Cache\Lock;
-use Illuminate\Support\Arr;
-use GuzzleHttp\RequestOptions;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client as HttpClient;
-use Illuminate\Support\Facades\Cache;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Contracts\Cache\LockTimeoutException;
-use Sideso\Hablame\Exceptions\CouldNotSendNotification;
 use GuzzleHttp\Psr7;
-
+use GuzzleHttp\RequestOptions;
+use Illuminate\Cache\Lock;
+use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Sideso\Hablame\Exceptions\CouldNotSendNotification;
 
 class Hablame
 {
