@@ -83,7 +83,7 @@ class HablameChannel
         return $this->sendMessage($message);
     }
 
-    public function bulkSend($bulk)
+    public function bulkSend($bulk, $notification = null)
     {
         $response = $this->hablame->sendBulkMessage(
             bulk: $bulk,
@@ -96,6 +96,11 @@ class HablameChannel
                 $message->sent = true;
                 $message->provider_msg_id = $response['loteId'];
                 $message->provider('hablame');
+                if($notification) {
+                    $message->tags([
+                        'notification' => $notification,
+                    ]);
+                }
                 SmsSent::dispatch($message);
             }
         } else {
